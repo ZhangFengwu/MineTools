@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, cp, rm, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -37,3 +37,24 @@ for (const [from, to] of replacements) {
 
 await writeFile(outputPath, source.replace(/\r\n/g, '\n'), 'utf8');
 console.log('Generated content.js from src/content-script.js.');
+
+const buildDir = path.join(root, 'build');
+await rm(buildDir, { recursive: true, force: true });
+await mkdir(buildDir, { recursive: true });
+
+const files = [
+  'manifest.json',
+  'popup.html', 'popup.js', 'popup.css',
+  'extension.js',
+  'content.js',
+];
+
+for (const file of files) {
+  await cp(path.join(root, file), path.join(buildDir, file));
+}
+
+// Copy keywords data from src/
+await cp(path.join(root, 'src', 'keywords.json'), path.join(buildDir, 'keywords.json'));
+await cp(path.join(root, 'icons'), path.join(buildDir, 'icons'), { recursive: true });
+
+console.log(`Packaged extension to build/ (${files.length + 1} entries).`);

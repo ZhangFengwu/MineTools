@@ -1,6 +1,9 @@
 # Generated local browser previews.
 tests/preview/
 
+# Build output for Chrome extension loading.
+build/
+
 # Local editor and operating-system files.
 .DS_Store
 Thumbs.db
