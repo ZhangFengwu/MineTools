@@ -1,0 +1,15 @@
+{
+  "name": "minetools",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Personal Chrome extension for collecting Google SERP and AITDK metrics.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check src/content-script.js && node --check content.js",
+    "test": "node --test tests/extension.test.mjs",
+    "verify": "npm run build && npm run check && npm test",
+    "prepare-preview": "node scripts/prepare-preview.mjs",
+    "preview": "node scripts/serve-preview.mjs"
+  }
+}

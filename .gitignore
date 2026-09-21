@@ -1,0 +1,9 @@
+# Generated local browser previews.
+tests/preview/
+
+# Local editor and operating-system files.
+.DS_Store
+Thumbs.db
+
+# No dependencies are currently required, but keep local installs out of Git.
+node_modules/

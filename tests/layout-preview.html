@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>MineTools 十条记录布局验证</title>
+<style>body{font:14px/1.5 system-ui;margin:24px;background:#f1f5f9;color:#334155}#rso{max-width:650px}article{margin:20px 0;padding:12px;background:#fff}pre{white-space:pre-wrap}.aitdk-site-metrics-container{font-size:11px}</style>
+<h1>MineTools 布局验证</h1><p>十条完整记录，长网址、长标题和长描述。</p>
+<pre id="layout-report">Waiting…</pre><main id="rso"></main>
+<footer id="footcnt"><span class="AhYzQb">上海市 中国</span><span class="KwU3F">是根据您的 IP 地址推断出来的</span></footer>
+<span class="aitdk-search-result-count-value">1,234,567</span>
+<script>
+  const today = new Date();
+  const dateLabel = (years, dayOffset = 0) => {
+    const date = new Date(today.getFullYear() - years, today.getMonth(), today.getDate() + dayOffset);
+    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+  };
+  const samples = [
+    [dateLabel(0), '101M', 'dark', 'dark', true],
+    [dateLabel(1), '100M', 'light', 'light', false],
+    [dateLabel(2), '1M', 'black', 'black', false],
+    [dateLabel(1, 1), '10M', 'dark', 'light', false],
+    [dateLabel(2, 1), '10.01M', 'light', 'light', true],
+    [dateLabel(3), '1.01M', 'black', 'light', true],
+    [dateLabel(0, 1), '1,000,001', 'black', 'light', true],
+    ['2025-02-29', '1.2B', 'black', 'dark', true],
+    ['N/A', '999K', 'black', 'black', true],
+    ['2020-02-29', '100000001', 'black', 'dark', true]
+  ];
+  for (let i = 1; i <= 10; i++) {
+    const card = document.createElement('article');
+    const heading = document.createElement('div'); heading.className = 'yuRUbf';
+    const link = document.createElement('a');
+    link.href = `https://site${i}.example.com/research/long-page-address/this-is-the-complete-destination-url?source=search&category=website-research&record=${i}`;
+    if (!samples[i - 1][4]) link.href = `https://site${i}.example.com/${i === 3 ? '?source=search' : i === 4 ? '#overview' : ''}`;
+    const site = document.createElement('span'); site.className = 'VuuXrf';
+    site.textContent = `Website Research ${i} · International Tools Directory`;
+    const h3 = document.createElement('h3');
+    h3.textContent = `Record ${i}: a complete and deliberately long page title for search results, product research and website analysis`;
+    link.append(site, h3); heading.append(link);
+    const desc = document.createElement('div'); desc.className = 'VwiC3b';
+    desc.textContent = `Description ${i}: ` + 'Full text stays available when scrolling inside this cell. The table row should never grow beyond two visible lines. '.repeat(5) + `END-OF-DESCRIPTION-${i}`;
+    const metrics = document.createElement('div'); metrics.className = 'aitdk-site-metrics-container';
+    for (const [label, value] of [['Monthly Visits', samples[i - 1][1]], ['Avg. Visit Duration', '00:02:46'], ['Domain Created', samples[i - 1][0]]]) {
+      const a = document.createElement('a'); a.href = `https://aitdk.com/traffic/site${i}.example.com`; a.textContent = `${label}: ${value} `; metrics.append(a);
+    }
+    card.append(heading, desc, metrics); document.getElementById('rso').append(card);
+  }
+  function checkLayout() {
+    const root = document.getElementById('minetools-panel').shadowRoot;
+    const rows = [...root.querySelectorAll('tbody tr')], cells = [...root.querySelectorAll('.cell-value')];
+    const wrap = root.querySelector('.table-wrap'), rect = wrap.getBoundingClientRect();
+    const result = {
+      viewport: `${innerWidth}x${innerHeight}`, records: rows.length,
+      metadataRows: root.querySelectorAll('.meta-line').length,
+      metadataHeight: root.querySelector('.meta').getBoundingClientRect().height,
+      maxRowHeight: Math.max(...rows.map(row=>row.getBoundingClientRect().height)),
+      maxCellHeight: Math.max(...cells.map(cell=>cell.getBoundingClientRect().height)),
+      metricColumnWidths: [...root.querySelectorAll('th')].slice(-3).map(cell => cell.getBoundingClientRect().width),
+      tenthRowVisible: rows.length === 10 && rows[9].getBoundingClientRect().bottom <= rect.bottom + 1 && rect.bottom <= innerHeight,
+      tableNeedsVerticalScroll: wrap.scrollHeight > wrap.clientHeight + 1,
+      tableNeedsHorizontalScroll: wrap.scrollWidth > wrap.clientWidth + 1,
+      overflowingCells: cells.filter(cell=>cell.scrollHeight > cell.clientHeight + 1).length,
+      keyboardScrollable: cells.filter(cell=>cell.scrollHeight > cell.clientHeight + 1).every(cell=>cell.tabIndex === 0),
+      exportComplete: window.__mineToolsPanel.toMarkdown().includes('END-OF-DESCRIPTION-10')
+    };
+    const colors = {black: 'rgb(0, 0, 0)', dark: 'rgb(30, 58, 138)', light: 'rgb(54, 123, 195)'};
+    result.colorChecks = rows.map((row, i) => {
+      const color = column => getComputedStyle(row.children[column].firstElementChild).color;
+      return {row: i + 1, date: color(5) === colors[samples[i][2]], visits: color(6) === colors[samples[i][3]],
+        url: color(2) === (samples[i][4] ? 'rgb(18, 96, 181)' : colors.black),
+        linkInheritsColor: getComputedStyle(row.children[2].querySelector('a')).color === color(2)};
+    });
+    result.allColorChecksPass = result.colorChecks.every(check => check.date && check.visits && check.url && check.linkInheritsColor);
+    const cell = rows[0].children[4].firstElementChild; cell.scrollTop = cell.scrollHeight;
+    result.cellScrollWorks = cell.scrollTop > 0;
+    result.scrollingCellKeepsRowsFixed = Math.abs(rows[0].getBoundingClientRect().height - result.maxRowHeight) < 1;
+    cell.scrollTop = 0;
+    document.getElementById('layout-report').textContent = JSON.stringify(result, null, 2);
+  }
+  window.addEventListener('resize', () => setTimeout(checkLayout, 80));
+</script>
+<script src="../content.js" onload="setTimeout(checkLayout,100)"></script>
+</html>

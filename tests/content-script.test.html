@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>Google SERP Exporter 验证</title>
+<style>
+body{font:15px/1.6 system-ui;margin:32px;background:#f5f7fa;color:#24354b}main{max-width:720px}article{background:white;padding:18px;margin:16px 0;border-radius:10px}h3{margin:0 0 6px}a{color:#195db1}.aitdk-site-metrics-container{font-size:12px;padding:9px;background:#e9f1fa;margin-top:12px}.aitdk-site-metrics{display:flex;gap:12px;flex-wrap:wrap}#assertions{white-space:pre-wrap;background:#142b42;color:#def9df;padding:16px;max-width:720px}button{padding:8px;margin:5px}cite{display:block}
+</style>
+<h1>采集脚本测试页</h1>
+<p>本地模拟数据；通过面板检查拖动、收起、刷新与复制。</p>
+<button id="rerun">重复执行脚本</button><button id="late">模拟延迟加载指标</button><button id="fallback">模拟复制权限受限</button>
+<button id="count-update">模拟总搜索结果数变化</button><button id="count-hide">模拟总搜索结果数缺失</button>
+<div class="aitdk-search-result-count-value" hidden>999</div>
+<div>总搜索结果数：<span id="total-count" class="aitdk-search-result-count-value">1,234,567</span></div>
+<pre id="assertions" role="status">等待脚本测试…</pre>
+<main id="rso">
+<article id="first"><div class="tF2Cxc"><div class="yuRUbf"><a href="https://imgupscaler.ai/"><span class="VuuXrf">ImgUpscaler AI</span><h3>ImgUpscaler | AI &lt;img onerror=alert(1)&gt; [test]</h3><cite>https://imgupscaler.ai</cite></a></div><div class="VwiC3b">Enlarge photos by 4×. A | B, *text*, &amp; &lt;tags&gt;.</div><img width="100" height="60" alt="Ordinary result thumbnail" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60'%3E%3Crect width='100' height='60' fill='%23b9dcd5'/%3E%3C/svg%3E"></div></article>
+<article id="second"><a href="https://imgupscaler.ai/photo-enhancer"><h3>Same domain, separate result</h3></a><div class="VwiC3b">This result has no metric strip.</div></article>
+<article id="image-pack" class="MjjYud"><div data-attrid="images universal"><h2>Images</h2><a href="https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.example%2Fa.png"><img width="120" height="80" alt="Picture A" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23c1d9ea'/%3E%3C/svg%3E"></a><a href="https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.example%2Fb.png"><img width="120" height="80" alt="Picture B" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23dacdef'/%3E%3C/svg%3E"></a></div></article>
+<article id="third"><a href="https://www.google.com/url?url=https%3A%2F%2Fexample.org%2Fa%3Fx%3D1%26y%3D2"><h3>Redirect URL result</h3></a><div class="VwiC3b">Destination URL should be decoded.</div></article>
+<div id="sibling"></div>
+<article id="fourth"><a href="https://other.example/"><h3>Metrics domain mismatch</h3></a><div class="VwiC3b">Must not use metrics for other.example.evil.com.</div></article>
+<article id="fifth"><div class="yuRUbf"><a href="https://www.google.com/goto?url=opaque-token"><h3>Opaque redirect</h3><cite>https://opaque.example › some...</cite></a></div><div class="VwiC3b">Show visible address as text without inventing a destination URL.</div></article>
+<article id="single-image" class="MjjYud"><a href="https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.example%2Fc.png"><img width="120" height="80" alt="Standalone image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23edd8b8'/%3E%3C/svg%3E"></a></article>
+<article id="sixth"><a href="https://zero.example/"><h3>Zero visits</h3></a></article>
+<article id="hidden" style="display:none"><a href="https://hidden.example/"><h3>Hidden result</h3></a></article>
+<div class="related-question-pair"><a href="https://question.example/"><h3>Related question</h3></a></div>
+<div class="mslg"><h3><a href="https://imgupscaler.ai/pricing">Sitelink</a></h3></div>
+<div id="tads"><a href="https://ad.example/"><h3>Ad result</h3></a></div>
+</main>
+<footer id="footcnt"><span class="AhYzQb">上海市 中国</span><span class="KwU3F">是根据您的 IP 地址推断出来的</span></footer>
+<script>
+  function metric(domain, visits, duration = '00:02:46', created = '2024-11-07') {
+    const box = document.createElement('div');
+    box.className = 'aitdk-site-metrics-container';
+    const inner = document.createElement('div');
+    inner.className = 'aitdk-site-metrics';
+    for (const [label, value, endpoint, content] of [
+      ['', 'AITDK', 'traffic', 'brand'], ['Monthly Visits: ', visits, 'traffic', 'visits'],
+      ['Avg. Visit Duration: ', duration, 'traffic', 'duration'], ['Domain Created: ', created, 'whois', 'created']
+    ]) {
+      const a = document.createElement('a');
+      a.className = 'aitdk-metric-item';
+      a.href = `https://aitdk.com/${endpoint}/${domain}?utm_source=serp&utm_content=${content}`;
+      const span = document.createElement('span');
+      span.textContent = label + value;
+      a.append(span);
+      inner.append(a);
+    }
+    box.append(inner);
+    return box;
+  }
+  document.querySelector('#first').append(metric('imgupscaler.ai', '2.01M'));
+  document.querySelector('#sibling').replaceWith(metric('example.org', '9.8K'));
+  document.querySelector('#fourth').append(metric('other.example.evil.com', '999M'));
+  document.querySelector('#fifth').append(metric('opaque.example', '12K'));
+  document.querySelector('#sixth').append(metric('zero.example', '0', '00:00:00', 'N/A'));
+  function verify() {
+    const api = window.__googleSerpExporter;
+    const d = api.data, r = d.results.filter(item => item.type === 'web'), md = api.toMarkdown();
+    const checks = [];
+    const check = (name, ok) => checks.push(`${ok ? 'PASS' : 'FAIL'} ${name}`);
+    check('6 ordinary visible results; hidden/ads/sitelinks/related questions excluded', r.length === 6);
+    check('Location from footer; country is not guessed from domain', d.location === '上海市 中国');
+    check('Keyword from URL preserves non-ASCII and literal plus', d.keyword === '图片 放大+AI');
+    check('Provided metric values', r[0].domainCreated === '2024-11-07' && r[0].monthlyVisits === '2.01M' && r[0].avgVisitDuration === '00:02:46');
+    check('Same-domain result does not borrow first row metrics', r[1].monthlyVisits === (document.querySelector('#second ' + '.aitdk-site-metrics-container') ? '88K' : null));
+    check('Google redirect decoded with nested query intact', r[2].url === 'https://example.org/a?x=1&y=2');
+    check('Sibling metrics associated with correct row', r[2].monthlyVisits === '9.8K' && r[2].metricsMatch === 'following-sibling');
+    check('Domain suffix attack does not match', r[3].monthlyVisits === null);
+    check('Opaque redirect omitted; visible address retained', r[4].url === null && r[4].displayURL === 'https://opaque.example › some...' && r[4].domain === 'opaque.example' && r[4].monthlyVisits === '12K');
+    check('0 and 00:00:00 retained; N/A is null', r[5].monthlyVisits === '0' && r[5].avgVisitDuration === '00:00:00' && r[5].domainCreated === null);
+    check('Missing snippet stays missing', r[5].description === null);
+    check('Descriptions do not contain AITDK chrome', !r[0].description.includes('Monthly Visits'));
+    check('Markdown escapes pipes, markup, and brackets', md.includes('A \\| B') && md.includes('&lt;img') && md.includes('\\[test\\]'));
+    check('Single panel after execution', document.querySelectorAll('#google-serp-exporter-panel').length === 1);
+    check('Panel has no injected image/script from result title', !document.querySelector('#google-serp-exporter-panel').shadowRoot.querySelector('img,script'));
+    const shadow = document.querySelector('#google-serp-exporter-panel').shadowRoot;
+    check('Search page URL removed from JSON, metadata and Markdown', !('pageURL' in d) && !shadow.querySelector('.meta').textContent.includes('页面 URL') && !md.includes('当前页面 URL'));
+    check('No Google redirect URLs leak into JSON or Markdown', !JSON.stringify(d).includes('opaque-token') && !md.includes('/goto?') && !md.includes('/url?') && !md.includes('/imgres?'));
+    check('Site name is separate from page title, with hostname fallback', r[0].site === 'ImgUpscaler AI' && r[0].site !== r[0].title && r[1].site === 'imgupscaler.ai');
+    const headers = ['#', 'site', 'page url', 'page title', 'page desc', 'domain created', 'monthly visits', 'avg. visit duration'];
+    check('Panel and Markdown share the required English columns and order', [...shadow.querySelectorAll('th')].map(n=>n.textContent).join('|') === headers.join('|') && md.includes('| ' + headers.join(' | ') + ' |'));
+    const count = document.querySelector('#total-count');
+    check('Total result count uses the visible AITDK value and preserves formatting', d.totalSearchResults === (count.hidden ? null : count.textContent));
+    const metadataLabels = [...shadow.querySelectorAll('dt')].map(n=>n.textContent);
+    check('Total result count immediately follows keyword', metadataLabels.indexOf('总搜索结果条数') === metadataLabels.indexOf('搜索关键词') + 1 && /搜索关键词：[^\n]+\n- 总搜索结果条数：/.test(md));
+    check('Total count is distinct from current-page extracted count', d.resultCount === 8 && d.totalSearchResults !== String(d.resultCount));
+    check('Image pack stays at its page position as one placeholder', d.results[2].type === 'image' && d.results[2].site === 'image' && d.results[2].title === 'image' && d.results[2].description === 'image');
+    check('Standalone image without h3 is retained in order', d.results[6].type === 'image' && d.results[7].title === 'Zero visits');
+    check('Web thumbnail is not a separate image result', d.results.filter(item=>item.type === 'image').length === 2);
+    check('Image placeholders have no borrowed metrics', d.results.filter(item=>item.type === 'image').every(item=>item.metricsMatch === null && item.monthlyVisits === null));
+    const panelRows = [...shadow.querySelectorAll('tbody tr')];
+    check('Image metric cells display -- in panel and Markdown', d.results.filter(item => item.type === 'image').every(item =>
+      [...panelRows[item.index - 1].children].slice(-3).every(td => td.textContent === '--') &&
+      md.includes(`| ${item.index} | image | image | image | image | -- | -- | -- |`)));
+    check('Last three columns each measure 110px', [...shadow.querySelectorAll('th')].slice(-3).every(th => Math.abs(th.getBoundingClientRect().width - 110) < 0.1));
+    check('Visible interior path on opaque redirect is blue without a hyperlink', getComputedStyle(panelRows[5].children[2].firstElementChild).color === 'rgb(18, 96, 181)' && panelRows[5].children[2].querySelector('a') === null);
+    check('Unknown target is displayed as plain text, never a redirect hyperlink', [...shadow.querySelectorAll('tbody tr')].find(row=>row.children[3].textContent === 'Opaque redirect').children[2].querySelector('a') === null);
+    document.querySelector('#assertions').textContent = checks.join('\n');
+  }
+  document.querySelector('#rerun').onclick = () => {
+    const script = document.createElement('script');
+    script.src = '../src/content-script.js?rerun=' + Date.now();
+    script.onload = verify;
+    document.body.append(script);
+  };
+  document.querySelector('#late').onclick = () => {
+    if (!document.querySelector('#second .aitdk-site-metrics-container')) document.querySelector('#second').append(metric('imgupscaler.ai', '88K'));
+    setTimeout(verify, 700);
+  };
+  document.querySelector('#fallback').onclick = () => {
+    Object.defineProperty(navigator, 'clipboard', {configurable:true, value:{writeText:()=>Promise.reject(new Error('Test denied'))}});
+    document.execCommand = () => false;
+    document.querySelector('#assertions').textContent = '已模拟自动复制受限，点击面板“复制 Markdown”检查手动复制内容。';
+  };
+  document.querySelector('#count-update').onclick = () => {
+    document.querySelector('#total-count').hidden = false;
+    document.querySelector('#total-count').textContent = '2,345,678';
+    setTimeout(verify, 700);
+  };
+  document.querySelector('#count-hide').onclick = () => {
+    document.querySelector('#total-count').hidden = true;
+    setTimeout(verify, 700);
+  };
+  async function runDynamicChecks() {
+    const report = document.createElement('pre');
+    report.id = 'dynamic-checks';
+    document.querySelector('#assertions').after(report);
+    const lines = [];
+    const record = (name, ok) => lines.push(`${ok ? 'PASS' : 'FAIL'} ${name}`);
+    const settle = () => new Promise(resolve => setTimeout(resolve, 900));
+    const getData = () => window.__googleSerpExporter.data;
+    const count = document.querySelector('#total-count');
+    count.textContent = '2,345,678';
+    await settle();
+    record('Total count auto-updates after AITDK text mutation', getData().totalSearchResults === '2,345,678');
+    count.hidden = true;
+    await settle();
+    record('Missing count becomes null without changing page result count', getData().totalSearchResults === null && getData().resultCount === 8);
+    count.hidden = false;
+    count.textContent = '0';
+    await settle();
+    record('Zero total count stays zero', getData().totalSearchResults === '0');
+    document.querySelector('#second').append(metric('imgupscaler.ai', '88K'));
+    await settle();
+    record('Delayed same-domain metrics attach only to their own row', getData().results[0].monthlyVisits === '2.01M' && getData().results[1].monthlyVisits === '88K');
+    const imagePack = document.querySelector('#image-pack [data-attrid]');
+    imagePack.removeAttribute('data-attrid');
+    await settle();
+    record('Image heading identifies a pack without the data-attrid marker', getData().resultCount === 8 && getData().results[2].type === 'image');
+    imagePack.setAttribute('data-attrid', 'images universal');
+    const opaqueLink = document.querySelector('#fifth a');
+    opaqueLink.setAttribute('data-rurl', 'https://opaque.example/actual-page?x=1&y=2');
+    await settle();
+    record('Explicit destination attribute replaces an encrypted redirect', getData().results[5].url === 'https://opaque.example/actual-page?x=1&y=2');
+    opaqueLink.removeAttribute('data-rurl');
+    count.textContent = '1,234,567';
+    await settle();
+    verify();
+    report.textContent = lines.join('\n') + '\nDONE';
+  }
+</script>
+<script src="../src/content-script.js" onload="verify(); if (new window.URL(window.location.href).searchParams.has('autotest')) runDynamicChecks()"></script>
+</html>
