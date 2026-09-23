@@ -111,8 +111,8 @@
     // 按本地日历的周年日判断；2 月 29 日在非闰年以 2 月 28 日为周年日。
     const anniversary = years => new Date(year + years, month - 1,
       Math.min(day, new Date(year + years, month, 0).getDate()));
-    if (current < anniversary(1)) return 'tone-dark-blue';
-    if (current < anniversary(2)) return 'tone-light-blue';
+    if (current < anniversary(1)) return 'tone-new';
+    if (current < anniversary(2)) return 'tone-young';
     return 'tone-black';
   }
 
@@ -121,9 +121,9 @@
     if (!match) return 'tone-black';
     const visits = Number(match[1].replace(/,/g, '')) * ({ K: 1e3, M: 1e6, B: 1e9 }[match[2]?.toUpperCase()] || 1);
     if (!Number.isFinite(visits)) return 'tone-black';
-    if (visits > 100e6) return 'tone-dark-blue';
+    if (visits >= 100e6) return 'tone-dark-blue';
     // 超过 1M 和超过 10M 按同一浅蓝色规则展示；恰好 100M 仍为浅蓝色。
-    return visits > 1e6 ? 'tone-light-blue' : 'tone-black';
+    return visits >= 1e6 ? 'tone-light-blue' : 'tone-black';
   }
 
   function isInnerPage(result) {
@@ -313,7 +313,7 @@
     .table-wrap{overflow:auto;min-height:0;flex:1 1 auto;border-top:1px solid #e2e8f0}table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:12px;min-width:980px}
     th{position:sticky;top:0;background:#edf3f7;text-align:left;color:#53657a;font-weight:600;z-index:1;padding:4px 6px;line-height:14px;overflow-wrap:normal}td{padding:3px 6px;vertical-align:top}td,th{border-bottom:1px solid #e2e8f0}tbody tr:nth-child(even){background:#fafcfe}tbody tr:hover{background:#f1f7fb}
     .cell-value{max-height:32px;line-height:16px;overflow:hidden;overflow-wrap:anywhere;overscroll-behavior:contain;scrollbar-width:none;scrollbar-color:#b4c6d5 transparent}.cell-value.is-scrollable{overflow-y:auto}.cell-value.is-scrollable:hover,.cell-value.is-scrollable:focus-within{scrollbar-width:thin}.cell-value::-webkit-scrollbar{width:0;height:0}.cell-value:hover::-webkit-scrollbar,.cell-value:focus-within::-webkit-scrollbar{width:4px}.cell-value::-webkit-scrollbar-button{display:none}.cell-value::-webkit-scrollbar-thumb{background:#b4c6d5;border-radius:4px}.cell-value:focus-visible{outline:2px solid #2f82e2;outline-offset:-2px}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}
-    .tone-black{color:#000}.tone-dark-blue{color:#1e3a8a}.tone-light-blue{color:#367bc3}.page-url{color:#000}.page-url.is-inner-page{color:#1260b5}
+    .tone-black{color:#000}.tone-dark-blue{color:#ef4444}.tone-light-blue{color:#f97316}.tone-new{color:#3b82f6}.tone-young{color:#22c55e}.page-url{color:#000}.page-url.is-inner-page{color:#22c55e}
     .footer{display:flex;align-items:center;gap:16px;flex:none;padding:4px 10px;border-top:1px solid #e2e8f0;min-height:25px}.footer details{flex:none}summary{cursor:pointer;color:#52657a;font-size:11px;line-height:16px}pre{position:absolute;left:8px;right:8px;bottom:25px;z-index:3;margin:0;font:11px/1.6 ui-monospace,monospace;max-height:min(300px,55vh);overflow:auto;background:#f2f6fa;padding:10px;border:1px solid #cbd5e1;border-radius:7px;box-shadow:0 4px 18px #0f172a25}
     .status{color:#62758a;font-size:10px;line-height:16px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.manual{position:absolute;bottom:25px;left:8px;right:8px;z-index:4;background:#fff;padding:10px;border:1px solid #cbd5e1;border-radius:7px;box-shadow:0 4px 18px #0f172a25}.manual textarea{width:100%;height:min(150px,35vh);font:12px/1.5 monospace}.manual p{font-size:12px;margin:0 0 6px}
     @media(max-width:760px){.hint{display:none}.meta-line{gap:8px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr)}.meta-item{gap:4px}.stats{text-align:left}}

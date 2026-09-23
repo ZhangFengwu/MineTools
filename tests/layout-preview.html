@@ -15,8 +15,8 @@
   };
   const samples = [
     [dateLabel(0), '101M', 'dark', 'dark', true],
-    [dateLabel(1), '100M', 'light', 'light', false],
-    [dateLabel(2), '1M', 'black', 'black', false],
+    [dateLabel(1), '100M', 'light', 'dark', false],
+    [dateLabel(2), '1M', 'black', 'light', false],
     [dateLabel(1, 1), '10M', 'dark', 'light', false],
     [dateLabel(2, 1), '10.01M', 'light', 'light', true],
     [dateLabel(3), '1.01M', 'black', 'light', true],
@@ -62,11 +62,12 @@
       keyboardScrollable: cells.filter(cell=>cell.scrollHeight > cell.clientHeight + 1).every(cell=>cell.tabIndex === 0),
       exportComplete: window.__mineToolsPanel.toMarkdown().includes('END-OF-DESCRIPTION-10')
     };
-    const colors = {black: 'rgb(0, 0, 0)', dark: 'rgb(30, 58, 138)', light: 'rgb(54, 123, 195)'};
+    const dateColors = {black: 'rgb(0, 0, 0)', dark: 'rgb(59, 130, 246)', light: 'rgb(34, 197, 94)'};
+    const visitColors = {black: 'rgb(0, 0, 0)', dark: 'rgb(239, 68, 68)', light: 'rgb(249, 115, 22)'};
     result.colorChecks = rows.map((row, i) => {
       const color = column => getComputedStyle(row.children[column].firstElementChild).color;
-      return {row: i + 1, date: color(5) === colors[samples[i][2]], visits: color(6) === colors[samples[i][3]],
-        url: color(2) === (samples[i][4] ? 'rgb(18, 96, 181)' : colors.black),
+      return {row: i + 1, date: color(5) === dateColors[samples[i][2]], visits: color(6) === visitColors[samples[i][3]],
+        url: color(2) === (samples[i][4] ? 'rgb(34, 197, 94)' : dateColors.black),
         linkInheritsColor: getComputedStyle(row.children[2].querySelector('a')).color === color(2)};
     });
     result.allColorChecksPass = result.colorChecks.every(check => check.date && check.visits && check.url && check.linkInheritsColor);
