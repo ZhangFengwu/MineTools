@@ -42,7 +42,7 @@ h2 { font-size: 16px; line-height: 1.4; margin: 0 0 6px; letter-spacing: -.3px; 
   flex: 1;
   overflow-y: auto;
   margin-bottom: 12px;
-  padding: 4px 0;
+  padding: 4px 8px 4px 0;
   min-height: 0;
 }
 .keyword-chip {
@@ -113,3 +113,159 @@ h2 { font-size: 16px; line-height: 1.4; margin: 0 0 6px; letter-spacing: -.3px; 
 #trends-btn:disabled { background: #e9eef2; color: #899aa8; cursor: default; }
 #trends-btn:focus-visible { outline: 3px solid #168072; outline-offset: 3px; }
 .hint { font-size: 11px; line-height: 1.7; color: #6b8091; margin: 10px 0 0; }
+
+/* AhrefsBacklink panel */
+.ahrefs-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+#ahrefs-domain {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #dfe6ec;
+  border-radius: 6px;
+  color: #173047;
+  background: #fff;
+}
+#ahrefs-domain:focus { outline: none; border-color: #168072; }
+#ahrefs-domain::placeholder { color: #a0b0bc; }
+#ahrefs-query-btn {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  background: #15354b;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#ahrefs-query-btn:hover:not(:disabled) { background: #205570; }
+#ahrefs-query-btn:disabled { background: #e9eef2; color: #899aa8; cursor: default; }
+
+.ahrefs-actions { margin-bottom: 8px; }
+#ahrefs-extract-btn {
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  background: #168072;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#ahrefs-extract-btn:hover:not(:disabled) { background: #147667; }
+#ahrefs-extract-btn:disabled { background: #e9eef2; color: #899aa8; cursor: default; }
+
+.ahrefs-status { font-size: 12px; line-height: 1.6; color: #526a7d; padding-bottom: 10px; }
+.ahrefs-status[data-state="error"] { color: #a13d2b; }
+.ahrefs-status[data-state="success"] { color: #147667; }
+.ahrefs-status[data-state="loading"] { color: #168072; }
+
+.ahrefs-history-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #e5edf2; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #173047; }
+
+.ahrefs-history { flex: 1; overflow-y: auto; min-height: 0; padding-right: 8px; }
+.ahrefs-history-empty { text-align: center; color: #a0b0bc; font-size: 12px; padding: 30px 0; }
+
+.ahrefs-history-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 34px 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .1s;
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  position: relative;
+}
+.ahrefs-history-item:hover { background: #f0f7f5; border-color: #d5ebe6; }
+
+.ahrefs-history-main { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+.ahrefs-history-domain { font-size: 13px; font-weight: 600; color: #173047; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ahrefs-history-date { font-size: 11px; color: #6b8091; white-space: nowrap; flex-shrink: 0; }
+
+.ahrefs-history-metrics { display: flex; gap: 10px; font-size: 11px; color: #62798c; margin-left: 12px; white-space: nowrap; }
+.ahrefs-history-metrics span { background: #f0f4f6; padding: 2px 6px; border-radius: 3px; }
+
+.ahrefs-history-delete {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 0;
+  color: #a0b0bc;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity .1s;
+}
+.ahrefs-history-item:hover .ahrefs-history-delete { opacity: 1; }
+.ahrefs-history-delete:hover { color: #a13d2b; background: #fde8e4; }
+
+/* Ahrefs detail view */
+.ahrefs-detail { flex: 1; display: none; flex-direction: column; overflow: hidden; min-height: 0; }
+.ahrefs-detail.active { display: flex; }
+.ahrefs-detail-header { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid #e5edf2; margin-bottom: 8px; flex-shrink: 0; }
+.ahrefs-detail-title { flex: 1; font-size: 14px; font-weight: 700; color: #173047; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.btn-copy {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  background: #168072;
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-copy:hover { background: #147667; }
+
+.ahrefs-detail-content { flex: 1; overflow-y: auto; min-height: 0; padding-right: 10px; }
+
+.ahrefs-detail-date { font-size: 11px; color: #6b8091; white-space: nowrap; flex-shrink: 0; }
+
+.ahrefs-detail-metrics { display: flex; gap: 18px; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: #173047; }
+.ahrefs-detail-metrics em { font-style: normal; font-weight: 400; font-size: 12px; color: #62798c; margin-right: 6px; }
+
+.ahrefs-detail-table-wrap { overflow-x: auto; padding-right: 8px; }
+.ahrefs-detail-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.ahrefs-detail-table th { text-align: left; padding: 6px 8px; background: #f5faf8; color: #168072; font-weight: 600; border-bottom: 2px solid #dfebe8; white-space: nowrap; }
+.ahrefs-detail-table td { padding: 5px 8px; border-bottom: 1px solid #f0f4f6; color: #173047; }
+.ahrefs-detail-table td a { color: #168072; text-decoration: none; word-break: break-all; }
+.ahrefs-detail-table td a:hover { text-decoration: underline; }
+.ahrefs-detail-table tr:hover td { background: #f9fbfc; }
+
+/* Scrollbar styling */
+.ahrefs-history::-webkit-scrollbar,
+.ahrefs-detail-content::-webkit-scrollbar,
+.ahrefs-detail-table-wrap::-webkit-scrollbar,
+.keyword-grid::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.ahrefs-history::-webkit-scrollbar-track,
+.ahrefs-detail-content::-webkit-scrollbar-track,
+.ahrefs-detail-table-wrap::-webkit-scrollbar-track,
+.keyword-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ahrefs-history::-webkit-scrollbar-thumb,
+.ahrefs-detail-content::-webkit-scrollbar-thumb,
+.ahrefs-detail-table-wrap::-webkit-scrollbar-thumb,
+.keyword-grid::-webkit-scrollbar-thumb {
+  background: #c5d3dc;
+  border-radius: 3px;
+}
+.ahrefs-history::-webkit-scrollbar-thumb:hover,
+.ahrefs-detail-content::-webkit-scrollbar-thumb:hover,
+.ahrefs-detail-table-wrap::-webkit-scrollbar-thumb:hover,
+.keyword-grid::-webkit-scrollbar-thumb:hover {
+  background: #a0b4c0;
+}

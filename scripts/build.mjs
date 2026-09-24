@@ -4,7 +4,9 @@ import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourcePath = path.join(root, 'src', 'content-script.js');
+const ahrefsSourcePath = path.join(root, 'src', 'ahrefs-content-script.js');
 const outputPath = path.join(root, 'content.js');
+const ahrefsOutputPath = path.join(root, 'ahrefs-content.js');
 let source = await readFile(sourcePath, 'utf8');
 
 const replacements = new Map([
@@ -38,6 +40,11 @@ for (const [from, to] of replacements) {
 await writeFile(outputPath, source.replace(/\r\n/g, '\n'), 'utf8');
 console.log('Generated content.js from src/content-script.js.');
 
+// Generate Ahrefs content script (no replacements needed, just copy)
+let ahrefsSource = await readFile(ahrefsSourcePath, 'utf8');
+await writeFile(ahrefsOutputPath, ahrefsSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated ahrefs-content.js from src/ahrefs-content-script.js.');
+
 const buildDir = path.join(root, 'build');
 await rm(buildDir, { recursive: true, force: true });
 await mkdir(buildDir, { recursive: true });
@@ -47,6 +54,7 @@ const files = [
   'popup.html', 'popup.js', 'popup.css',
   'extension.js',
   'content.js',
+  'ahrefs-content.js',
 ];
 
 for (const file of files) {

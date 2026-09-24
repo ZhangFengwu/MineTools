@@ -16,6 +16,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="serp">SERP 采集</button>
     <button class="tab" data-tab="trends">趋势分析</button>
+    <button class="tab" data-tab="ahrefs">Ahrefs 反链</button>
   </nav>
   <main>
     <section id="panel-serp" class="panel active">
@@ -43,6 +44,22 @@
       </div>
       <button id="trends-btn" type="button" disabled>在 Google Trends 中查看 <span aria-hidden="true">↗</span></button>
       <p class="hint">选择最多 8 个词根，在新标签页打开 Google Trends 对比。默认近 1 个月。</p>
+    </section>
+    <section id="panel-ahrefs" class="panel">
+      <div class="ahrefs-input-row">
+        <input id="ahrefs-domain" type="text" placeholder="输入域名，如 example.com" autocomplete="off" spellcheck="false">
+        <button id="ahrefs-query-btn" type="button" disabled>查询</button>
+      </div>
+      <div class="ahrefs-actions">
+        <button id="ahrefs-extract-btn" type="button">提取DR数据</button>
+      </div>
+      <div id="ahrefs-status" class="ahrefs-status" data-state="idle">输入域名后点击查询，在 Ahrefs 页面加载完成后点击提取。</div>
+      <div class="ahrefs-history-header">
+        <span>查询历史</span>
+        <button id="ahrefs-clear-history" type="button" class="btn-text" disabled>清空</button>
+      </div>
+      <div id="ahrefs-history" class="ahrefs-history"></div>
+      <div id="ahrefs-detail" class="ahrefs-detail"></div>
     </section>
   </main>
 </body>

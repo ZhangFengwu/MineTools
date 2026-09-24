@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MineTools",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "采集 Google 搜索结果、页面定位和 AITDK 网站指标，在可拖动面板中查看并复制为 Markdown。",
   "minimum_chrome_version": "102",
   "permissions": ["activeTab", "scripting", "clipboardWrite"],
