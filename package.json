@@ -1,12 +1,12 @@
 {
   "name": "minetools",
-  "version": "1.5.0",
+  "version": "1.11.0",
   "private": true,
-  "description": "Personal Chrome extension for collecting Google SERP and AITDK metrics.",
+  "description": "Personal Chrome side panel toolkit for SERP collection, backlinks, domain age and keyword trends.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check src/content-script.js && node --check content.js",
+    "check": "node --check src/content-script.js && node --check content.js && node --check domain-content.js && node --check external-links-content.js",
     "test": "node --test tests/extension.test.mjs",
     "verify": "npm run build && npm run check && npm test",
     "prepare-preview": "node scripts/prepare-preview.mjs",

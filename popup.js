@@ -1,4 +1,4 @@
-import { getSearchTab, openPanel } from './extension.js';
+import { getSearchTab, openPanel, runDomainCheck, openBacklinkChecker, runExternalLinkScan } from './extension.js';
 
 const MAX_SELECT = 8;
 const selected = new Set();
@@ -45,17 +45,31 @@ async function initializeSerp() {
     openButton.disabled = false;
   } catch (error) {
     setStatus(error.message, 'error');
+    openButton.disabled = true;
   }
 }
+
+let serpRefreshTimer = 0;
+function scheduleSerpRefresh() {
+  clearTimeout(serpRefreshTimer);
+  serpRefreshTimer = setTimeout(initializeSerp, 120);
+}
+
+chrome.tabs.onActivated.addListener(scheduleSerpRefresh);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (tab.active && (changeInfo.status === 'complete' || changeInfo.url)) scheduleSerpRefresh();
+});
 
 openButton.addEventListener('click', async () => {
   openButton.disabled = true;
   setStatus('正在提取当前页结果…', 'loading');
   try {
-    await openPanel(chrome);
-    window.close();
+    const result = await openPanel(chrome);
+    const count = Number.isInteger(result?.resultCount) ? ` · ${result.resultCount} 条结果` : '';
+    setStatus(`采集面板已打开${count}`, 'ready');
   } catch (error) {
     setStatus(error.message, 'error');
+  } finally {
     openButton.disabled = false;
   }
 });
@@ -133,7 +147,6 @@ trendsBtn.addEventListener('click', () => {
   const q = [...selected].join(',');
   const url = `https://trends.google.com/explore?q=${encodeURIComponent(q)}&date=today%201-m`;
   chrome.tabs.create({ url });
-  window.close();
 });
 
 loadKeywords();
@@ -452,3 +465,70 @@ function copyAhrefsAsMarkdown(record) {
 }
 
 loadAhrefsHistory();
+
+// Domain panel
+const domainRun = document.getElementById('domain-run');
+const domainStatus = document.getElementById('domain-status');
+
+domainRun.addEventListener('click', async () => {
+  domainRun.disabled = true;
+  domainStatus.textContent = '正在当前页执行查域名…';
+  domainStatus.dataset.state = 'loading';
+  try {
+    await runDomainCheck(chrome);
+    domainStatus.textContent = '已执行，结果面板显示在页面右侧。';
+    domainStatus.dataset.state = 'ready';
+  } catch (error) {
+    domainStatus.textContent = error.message;
+    domainStatus.dataset.state = 'error';
+  } finally {
+    domainRun.disabled = false;
+  }
+});
+
+// Backlink panel
+const backlinkRun = document.getElementById('backlink-run');
+const backlinkStatus = document.getElementById('backlink-status');
+
+backlinkRun.addEventListener('click', async () => {
+  backlinkRun.disabled = true;
+  backlinkStatus.textContent = '正在读取当前页域名…';
+  backlinkStatus.dataset.state = 'loading';
+  try {
+    const hostname = await openBacklinkChecker(chrome);
+    backlinkStatus.textContent = `已在新标签页打开 Ahrefs：${hostname}`;
+    backlinkStatus.dataset.state = 'ready';
+  } catch (error) {
+    backlinkStatus.textContent = error.message;
+    backlinkStatus.dataset.state = 'error';
+  } finally {
+    backlinkRun.disabled = false;
+  }
+});
+
+// External links panel
+const linksRun = document.getElementById('links-run');
+const linksStatus = document.getElementById('links-status');
+
+linksRun.addEventListener('click', async () => {
+  linksRun.disabled = true;
+  linksStatus.textContent = '正在扫描当前页外链…';
+  linksStatus.dataset.state = 'loading';
+  try {
+    const result = await runExternalLinkScan(chrome);
+    const count = Number.isInteger(result?.count) ? result.count : null;
+    if (count === 0) {
+      linksStatus.textContent = '未发现外部链接，浮窗显示空结果。';
+    } else if (count === null) {
+      linksStatus.textContent = '已执行，结果面板显示在页面右侧。';
+    } else {
+      linksStatus.textContent = `找到 ${count} 个外链，结果面板显示在页面右侧。`;
+    }
+    linksStatus.dataset.state = 'ready';
+  } catch (error) {
+    linksStatus.textContent = error.message;
+    linksStatus.dataset.state = 'error';
+  } finally {
+    linksRun.disabled = false;
+  }
+});

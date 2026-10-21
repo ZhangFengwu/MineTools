@@ -11,15 +11,39 @@
   <header>
     <img src="icons/icon48.png" width="40" height="40" alt="">
     <div><h1>MineTools</h1><p>站长需求挖掘工具集</p></div>
-    <span class="version">1.4</span>
+    <span class="version">1.11</span>
   </header>
   <nav class="tabs">
-    <button class="tab active" data-tab="serp">SERP 采集</button>
-    <button class="tab" data-tab="trends">趋势分析</button>
-    <button class="tab" data-tab="ahrefs">Ahrefs 反链</button>
+    <button class="tab active" data-tab="common">常用</button>
+    <button class="tab" data-tab="serp">SERP<span class="tab-optional"> 采集</span></button>
+    <button class="tab" data-tab="trends">趋势<span class="tab-optional">分析</span></button>
+    <button class="tab" data-tab="ahrefs"><span class="tab-prefix">Ahrefs </span>反链</button>
   </nav>
   <main>
-    <section id="panel-serp" class="panel active">
+    <section id="panel-common" class="panel active">
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>查域名</h3>
+          <button id="domain-run" type="button" class="tool-btn">查询当前页域名</button>
+        </div>
+        <div id="domain-status" class="tool-status" role="status" aria-live="polite" data-state="idle">扫描当前页文字中的域名并查询注册日期。</div>
+      </div>
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>查外链</h3>
+          <button id="backlink-run" type="button" class="tool-btn">打开 Ahrefs 反链</button>
+        </div>
+        <div id="backlink-status" class="tool-status" role="status" aria-live="polite" data-state="idle">用当前网页主机名打开 Ahrefs Backlink Checker。</div>
+      </div>
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>找外链</h3>
+          <button id="links-run" type="button" class="tool-btn">找链</button>
+        </div>
+        <div id="links-status" class="tool-status" role="status" aria-live="polite" data-state="idle">高亮页面中的外部链接，并在浮窗中列出结果。</div>
+      </div>
+    </section>
+    <section id="panel-serp" class="panel">
       <div class="eyebrow">GOOGLE 搜索采集</div>
       <h2>一页结果，一份清晰的数据。</h2>
       <p class="intro">汇总网页信息与网站指标，直接复制为 Markdown。</p>

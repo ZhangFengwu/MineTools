@@ -1,6 +1,6 @@
 # MineTools
 
-个人使用的 Chrome MV3 扩展：从当前 Google 普通搜索结果页采集网页结果、Google 页脚定位和页面已有的 AITDK 指标，并在可拖动面板中复制 Markdown。
+个人使用的 Chrome MV3 扩展：集成 Google 搜索结果采集、Ahrefs 反链、页面外链扫描、域名注册时间查询和关键词趋势分析，以浏览器右侧侧边栏常驻。
 
 运行时只有 HTML、CSS 和 JavaScript，不需要 Node.js、Python、服务端或网络 API。Node.js 只在修改源码、生成扩展脚本和运行本地验证时使用。
 
@@ -9,12 +9,17 @@
 1. 打开 `chrome://extensions/`，开启开发者模式。
 2. 点击“加载已解压的扩展程序”。
 3. 选择当前 `MineTools` 文件夹，即这个包含 `manifest.json` 的目录。
-4. 在 Google 普通网页搜索结果页点击扩展图标打开面板。
+4. 点击扩展图标，在浏览器右侧打开 MineTools 侧边栏；切换标签页时保持打开，使用浏览器自带的关闭按钮关闭。
 
 更新源码后，先执行 `npm run build`，然后在 `chrome://extensions/` 点击 MineTools 的刷新按钮，并刷新已打开的 Google 页面。
 
 ## 功能
 
+- 常用页集中提供查域名、查外链和找外链三个操作，打开侧边栏即可使用。
+- 侧边栏为窗口级面板，切换标签页不会关闭；切换标签页后再点一次扩展图标即可授权当前页，侧边栏保持打开。
+- 查域名：扫描当前页文字中的域名，通过 WHOIS/RDAP 查询注册日期，并在页面内生成可拖动、可关闭的结果面板；结果按当前网站缓存。
+- 查外链：读取当前网页主机名，在新标签页打开 Ahrefs Backlink Checker。
+- 找外链：扫描并高亮当前页的外部链接，在页面浮窗中列出 URL、锚文本、rel、target 和可见性，支持下载 CSV。
 - 采集 Google 域名、页脚定位地址及来源、搜索关键词和 `.aitdk-search-result-count-value` 的总结果数；不保存搜索页 URL。
 - 对每条普通结果采集 `site`、`page url`、`page title`、`page desc` 及 AITDK 的 `domain created`、`monthly visits`、`avg. visit duration`。
 - 还原可解码的 Google 跳转 URL；无法解码时只显示可见地址，不输出 Google 跳转链接，也不猜测目标 URL。
@@ -35,13 +40,15 @@
 
 ```text
 MineTools/
-  manifest.json, popup.*, extension.js, content.js, icons/  # Chrome 直接加载的扩展
-  src/content-script.js                                     # 采集与面板的唯一源码
-  scripts/build.mjs                                         # Node 构建：生成 content.js，不打 ZIP
-  scripts/prepare-preview.mjs, serve-preview.mjs            # 本地预览工具
-  tests/                                                     # 包装测试、DOM 测试、布局预览与夹具
-  docs/console-script.md                                    # Console 直接运行源码的说明
-  package.json                                               # 无第三方依赖的命令入口
+  manifest.json, background.js, popup.*, extension.js, icons/                    # Chrome 直接加载的扩展
+  content.js, ahrefs-content.js, domain-content.js, external-links-content.js     # 构建生成的页面脚本
+  src/content-script.js, src/ahrefs-content-script.js                             # SERP 采集与 Ahrefs 源码
+  src/domain-content-script.js, src/external-links-content-script.js              # 查域名与找外链源码
+  scripts/build.mjs                                                               # Node 构建：生成页面脚本，不打 ZIP
+  scripts/prepare-preview.mjs, serve-preview.mjs                                  # 本地预览工具
+  tests/                                                                          # 包装测试、DOM 测试、布局预览与夹具
+  docs/console-script.md                                                          # Console 直接运行源码的说明
+  package.json                                                                    # 无第三方依赖的命令入口
 ```
 
 `content.js` 是受版本控制的生成文件，确保克隆后可直接加载扩展。修改 `src/content-script.js` 后必须执行 `npm run build`，不要手工修改 `content.js`。

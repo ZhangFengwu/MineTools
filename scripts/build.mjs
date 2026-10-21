@@ -5,8 +5,12 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourcePath = path.join(root, 'src', 'content-script.js');
 const ahrefsSourcePath = path.join(root, 'src', 'ahrefs-content-script.js');
+const domainSourcePath = path.join(root, 'src', 'domain-content-script.js');
+const externalLinksSourcePath = path.join(root, 'src', 'external-links-content-script.js');
 const outputPath = path.join(root, 'content.js');
 const ahrefsOutputPath = path.join(root, 'ahrefs-content.js');
+const domainOutputPath = path.join(root, 'domain-content.js');
+const externalLinksOutputPath = path.join(root, 'external-links-content.js');
 let source = await readFile(sourcePath, 'utf8');
 
 const replacements = new Map([
@@ -45,16 +49,29 @@ let ahrefsSource = await readFile(ahrefsSourcePath, 'utf8');
 await writeFile(ahrefsOutputPath, ahrefsSource.replace(/\r\n/g, '\n'), 'utf8');
 console.log('Generated ahrefs-content.js from src/ahrefs-content-script.js.');
 
+// Generate domain checker content script (decoded bookmarklet, no replacements)
+const domainSource = await readFile(domainSourcePath, 'utf8');
+await writeFile(domainOutputPath, domainSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated domain-content.js from src/domain-content-script.js.');
+
+// Generate external links scanner content script
+const externalLinksSource = await readFile(externalLinksSourcePath, 'utf8');
+await writeFile(externalLinksOutputPath, externalLinksSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated external-links-content.js from src/external-links-content-script.js.');
+
 const buildDir = path.join(root, 'build');
 await rm(buildDir, { recursive: true, force: true });
 await mkdir(buildDir, { recursive: true });
 
 const files = [
   'manifest.json',
+  'background.js',
   'popup.html', 'popup.js', 'popup.css',
   'extension.js',
   'content.js',
   'ahrefs-content.js',
+  'domain-content.js',
+  'external-links-content.js',
 ];
 
 for (const file of files) {
