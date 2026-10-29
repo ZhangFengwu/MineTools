@@ -7,10 +7,16 @@ const sourcePath = path.join(root, 'src', 'content-script.js');
 const ahrefsSourcePath = path.join(root, 'src', 'ahrefs-content-script.js');
 const domainSourcePath = path.join(root, 'src', 'domain-content-script.js');
 const externalLinksSourcePath = path.join(root, 'src', 'external-links-content-script.js');
+const mediaSourcePath = path.join(root, 'src', 'media-content-script.js');
+const captureMainSourcePath = path.join(root, 'src', 'youtube-capture-main-script.js');
+const captureBridgeSourcePath = path.join(root, 'src', 'youtube-capture-bridge-script.js');
 const outputPath = path.join(root, 'content.js');
 const ahrefsOutputPath = path.join(root, 'ahrefs-content.js');
 const domainOutputPath = path.join(root, 'domain-content.js');
 const externalLinksOutputPath = path.join(root, 'external-links-content.js');
+const mediaOutputPath = path.join(root, 'media-content.js');
+const captureMainOutputPath = path.join(root, 'youtube-capture-main.js');
+const captureBridgeOutputPath = path.join(root, 'youtube-capture-bridge.js');
 let source = await readFile(sourcePath, 'utf8');
 
 const replacements = new Map([
@@ -59,6 +65,20 @@ const externalLinksSource = await readFile(externalLinksSourcePath, 'utf8');
 await writeFile(externalLinksOutputPath, externalLinksSource.replace(/\r\n/g, '\n'), 'utf8');
 console.log('Generated external-links-content.js from src/external-links-content-script.js.');
 
+// Generate media sniffer content script
+const mediaSource = await readFile(mediaSourcePath, 'utf8');
+await writeFile(mediaOutputPath, mediaSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated media-content.js from src/media-content-script.js.');
+
+// Generate YouTube player capture scripts (MAIN world + ISOLATED bridge)
+const captureMainSource = await readFile(captureMainSourcePath, 'utf8');
+await writeFile(captureMainOutputPath, captureMainSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated youtube-capture-main.js from src/youtube-capture-main-script.js.');
+
+const captureBridgeSource = await readFile(captureBridgeSourcePath, 'utf8');
+await writeFile(captureBridgeOutputPath, captureBridgeSource.replace(/\r\n/g, '\n'), 'utf8');
+console.log('Generated youtube-capture-bridge.js from src/youtube-capture-bridge-script.js.');
+
 const buildDir = path.join(root, 'build');
 await rm(buildDir, { recursive: true, force: true });
 await mkdir(buildDir, { recursive: true });
@@ -72,6 +92,10 @@ const files = [
   'ahrefs-content.js',
   'domain-content.js',
   'external-links-content.js',
+  'media-content.js',
+  'media-merge.js',
+  'youtube-capture-main.js',
+  'youtube-capture-bridge.js',
 ];
 
 for (const file of files) {
@@ -81,5 +105,6 @@ for (const file of files) {
 // Copy keywords data from src/
 await cp(path.join(root, 'src', 'keywords.json'), path.join(buildDir, 'keywords.json'));
 await cp(path.join(root, 'icons'), path.join(buildDir, 'icons'), { recursive: true });
+await cp(path.join(root, 'vendor'), path.join(buildDir, 'vendor'), { recursive: true });
 
 console.log(`Packaged extension to build/ (${files.length + 1} entries).`);

@@ -1,12 +1,12 @@
 {
   "name": "minetools",
-  "version": "1.11.0",
+  "version": "1.16.0",
   "private": true,
-  "description": "Personal Chrome side panel toolkit for SERP collection, backlinks, domain age and keyword trends.",
+  "description": "Personal Chrome side panel toolkit for SERP collection, backlinks, media sniffing, domain age and keyword trends.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check src/content-script.js && node --check content.js && node --check domain-content.js && node --check external-links-content.js",
+    "check": "node --check src/content-script.js && node --check content.js && node --check domain-content.js && node --check external-links-content.js && node --check media-content.js && node --check media-merge.js && node --check youtube-capture-main.js && node --check youtube-capture-bridge.js",
     "test": "node --test tests/extension.test.mjs",
     "verify": "npm run build && npm run check && npm test",
     "prepare-preview": "node scripts/prepare-preview.mjs",

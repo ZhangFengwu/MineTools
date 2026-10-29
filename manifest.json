@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "MineTools",
-  "version": "1.11.0",
-  "description": "Google 搜索结果采集、Ahrefs 反链、域名注册时间查询与趋势分析，集成在浏览器侧边栏。",
+  "version": "1.16.0",
+  "description": "Google 搜索结果采集、Ahrefs 反链、页面素材嗅探、域名注册时间查询与趋势分析，集成在浏览器侧边栏。",
   "minimum_chrome_version": "116",
-  "permissions": ["activeTab", "scripting", "clipboardWrite", "sidePanel"],
+  "permissions": ["activeTab", "scripting", "clipboardWrite", "sidePanel", "tabs", "downloads"],
   "background": {
     "service_worker": "background.js"
   },
@@ -26,7 +26,26 @@
   "side_panel": {
     "default_path": "popup.html"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*"],
+      "js": ["youtube-capture-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*"],
+      "js": ["youtube-capture-bridge.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["media-merge.js", "vendor/*"],
+      "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*"]
+    }
+  ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; base-uri 'none'"
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
   }
 }

@@ -1,4 +1,4 @@
-import { getSearchTab, openPanel, runDomainCheck, openBacklinkChecker, runExternalLinkScan } from './extension.js';
+import { getSearchTab, openPanel, runDomainCheck, openBacklinkChecker, runExternalLinkScan, runMediaScan, readCurrentExplore, isValidDomain, normalizeDomain } from './extension.js';
 
 const MAX_SELECT = 8;
 const selected = new Set();
@@ -182,20 +182,16 @@ function setAhrefsStatus(message, state) {
   ahrefsStatus.dataset.state = state || 'idle';
 }
 
-function isValidDomain(domain) {
-  return /^[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain.trim());
-}
-
 function updateAhrefsControls() {
-  const domain = ahrefsDomainInput.value.trim();
-  ahrefsQueryBtn.disabled = !isValidDomain(domain);
+  ahrefsQueryBtn.disabled = !isValidDomain(ahrefsDomainInput.value);
 }
 
 ahrefsDomainInput.addEventListener('input', updateAhrefsControls);
 
 ahrefsQueryBtn.addEventListener('click', () => {
-  const domain = ahrefsDomainInput.value.trim();
+  const domain = normalizeDomain(ahrefsDomainInput.value);
   if (!isValidDomain(domain)) return;
+  ahrefsDomainInput.value = domain;
   const url = `https://ahrefs.com/backlink-checker/?input=${encodeURIComponent(domain)}&mode=subdomains`;
   chrome.tabs.create({ url }, (tab) => {
     ahrefsLastTabId = tab?.id || null;
@@ -261,12 +257,12 @@ ahrefsExtractBtn.addEventListener('click', async () => {
     }
 
     // Extract domain from URL if input is empty
-    let domain = ahrefsDomainInput.value.trim();
+    let domain = normalizeDomain(ahrefsDomainInput.value);
     if (!domain && targetTabUrl) {
       try {
         const urlObj = new URL(targetTabUrl);
         const inputParam = urlObj.searchParams.get('input');
-        if (inputParam) domain = inputParam;
+        if (inputParam) domain = normalizeDomain(inputParam);
       } catch {}
     }
 
@@ -532,3 +528,177 @@ linksRun.addEventListener('click', async () => {
     linksRun.disabled = false;
   }
 });
+
+// Media panel
+const mediaRun = document.getElementById('media-run');
+const mediaStatus = document.getElementById('media-status');
+
+mediaRun.addEventListener('click', async () => {
+  mediaRun.disabled = true;
+  mediaStatus.textContent = '正在嗅探当前页素材…';
+  mediaStatus.dataset.state = 'loading';
+  try {
+    const result = await runMediaScan(chrome);
+    const images = Number.isInteger(result?.images) ? result.images : null;
+    const videos = Number.isInteger(result?.videos) ? result.videos : null;
+    const audios = Number.isInteger(result?.audios) ? result.audios : 0;
+    if (result?.count === 0) {
+      mediaStatus.textContent = '未发现图片或视频素材，浮窗显示空结果。';
+    } else if (images === null || videos === null) {
+      mediaStatus.textContent = '已执行，结果面板显示在页面右侧。';
+    } else {
+      const audioText = audios ? `、${audios} 个音频` : '';
+      mediaStatus.textContent = `找到 ${images} 个图片、${videos} 个视频${audioText}，结果面板显示在页面右侧。`;
+    }
+    mediaStatus.dataset.state = 'ready';
+  } catch (error) {
+    mediaStatus.textContent = error.message;
+    mediaStatus.dataset.state = 'error';
+  } finally {
+    mediaRun.disabled = false;
+  }
+});
+
+// Explore panel
+const EXPLORE_STORAGE_KEY = 'minetools_explore_history';
+const EXPLORE_LIMIT = 50;
+const exploreSave = document.getElementById('explore-save');
+const exploreClear = document.getElementById('explore-clear');
+const exploreStatus = document.getElementById('explore-status');
+const exploreList = document.getElementById('explore-list');
+let exploreHistory = [];
+
+function saveExploreHistory() {
+  try {
+    localStorage.setItem(EXPLORE_STORAGE_KEY, JSON.stringify(exploreHistory));
+  } catch {}
+}
+
+function setExploreStatus(message, state = 'idle') {
+  exploreStatus.textContent = message;
+  exploreStatus.dataset.state = state;
+}
+
+function formatExploreTime(value) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return '';
+  return `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function renderExploreHistory() {
+  exploreClear.disabled = exploreHistory.length === 0;
+  exploreList.replaceChildren();
+  if (exploreHistory.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'explore-empty';
+    empty.textContent = '暂无保存的探索';
+    exploreList.append(empty);
+    return;
+  }
+
+  for (const record of exploreHistory) {
+    const item = document.createElement('div');
+    item.className = 'explore-item';
+    item.title = `${record.url}\n点击打开`;
+
+    const main = document.createElement('div');
+    main.className = 'explore-main';
+    const query = document.createElement('div');
+    query.className = 'explore-query';
+    query.textContent = record.query || '无关键词';
+    const meta = document.createElement('div');
+    meta.className = 'explore-meta';
+    const parts = [];
+    if (record.params?.date) parts.push(record.params.date);
+    if (record.params?.geo) parts.push(record.params.geo);
+    parts.push(formatExploreTime(record.timestamp));
+    meta.textContent = parts.filter(Boolean).join(' · ');
+    main.append(query, meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'explore-actions';
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'explore-action';
+    copy.textContent = '复制';
+    copy.title = '复制链接';
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'explore-action explore-delete';
+    remove.textContent = '×';
+    remove.title = '删除';
+    actions.append(copy, remove);
+
+    item.append(main, actions);
+    item.addEventListener('click', () => chrome.tabs.create({ url: record.url }));
+    copy.addEventListener('click', (event) => {
+      event.stopPropagation();
+      navigator.clipboard.writeText(record.url).then(() => {
+        copy.textContent = '已复制';
+        setTimeout(() => { copy.textContent = '复制'; }, 1200);
+      }).catch(() => setExploreStatus('复制失败，请手动复制。', 'error'));
+    });
+    remove.addEventListener('click', (event) => {
+      event.stopPropagation();
+      exploreHistory = exploreHistory.filter(entry => entry.id !== record.id);
+      saveExploreHistory();
+      renderExploreHistory();
+      setExploreStatus('已删除该探索。', 'ready');
+    });
+    exploreList.append(item);
+  }
+}
+
+function loadExploreHistory() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(EXPLORE_STORAGE_KEY) || '[]');
+    exploreHistory = Array.isArray(parsed)
+      ? parsed.filter(item => item &&
+          typeof item.id === 'string' &&
+          typeof item.url === 'string' &&
+          /^https:\/\/trends\.google\.com\//.test(item.url) &&
+          typeof item.query === 'string' &&
+          typeof item.timestamp === 'string')
+      : [];
+  } catch {
+    exploreHistory = [];
+  }
+  renderExploreHistory();
+}
+
+exploreSave.addEventListener('click', async () => {
+  exploreSave.disabled = true;
+  setExploreStatus('正在读取当前页参数…', 'loading');
+  try {
+    const data = await readCurrentExplore(chrome);
+    const existed = exploreHistory.some(item => item.url === data.url);
+    exploreHistory = exploreHistory.filter(item => item.url !== data.url);
+    exploreHistory.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      url: data.url,
+      query: data.query,
+      params: data.params,
+      timestamp: new Date().toISOString()
+    });
+    if (exploreHistory.length > EXPLORE_LIMIT) exploreHistory.length = EXPLORE_LIMIT;
+    saveExploreHistory();
+    renderExploreHistory();
+    setExploreStatus(existed ? '该探索已存在，已更新保存时间。' : '已保存当前探索。', 'ready');
+  } catch (error) {
+    setExploreStatus(error.message, 'error');
+  } finally {
+    exploreSave.disabled = false;
+  }
+});
+
+exploreClear.addEventListener('click', () => {
+  if (exploreHistory.length === 0) return;
+  if (confirm('确定清空所有已存探索？')) {
+    exploreHistory = [];
+    saveExploreHistory();
+    renderExploreHistory();
+    setExploreStatus('已清空已存探索。', 'ready');
+  }
+});
+
+loadExploreHistory();

@@ -11,7 +11,7 @@
   <header>
     <img src="icons/icon48.png" width="40" height="40" alt="">
     <div><h1>MineTools</h1><p>站长需求挖掘工具集</p></div>
-    <span class="version">1.11</span>
+    <span class="version">1.13</span>
   </header>
   <nav class="tabs">
     <button class="tab active" data-tab="common">常用</button>
@@ -42,6 +42,25 @@
         </div>
         <div id="links-status" class="tool-status" role="status" aria-live="polite" data-state="idle">高亮页面中的外部链接，并在浮窗中列出结果。</div>
       </div>
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>下素材</h3>
+          <button id="media-run" type="button" class="tool-btn">嗅探素材</button>
+        </div>
+        <div id="media-status" class="tool-status" role="status" aria-live="polite" data-state="idle">找出当前页的图片和视频，在浮窗中逐个下载。</div>
+      </div>
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>存探索</h3>
+          <button id="explore-save" type="button" class="tool-btn">存当前探索</button>
+        </div>
+        <div id="explore-status" class="tool-status" role="status" aria-live="polite" data-state="idle">在 Google Trends 探索页点击保存当前参数。</div>
+        <div class="explore-header">
+          <span>已存探索</span>
+          <button id="explore-clear" type="button" class="btn-text" disabled>清空</button>
+        </div>
+        <div id="explore-list" class="explore-list"></div>
+      </div>
     </section>
     <section id="panel-serp" class="panel">
       <div class="eyebrow">GOOGLE 搜索采集</div>
@@ -71,13 +90,13 @@
     </section>
     <section id="panel-ahrefs" class="panel">
       <div class="ahrefs-input-row">
-        <input id="ahrefs-domain" type="text" placeholder="输入域名，如 example.com" autocomplete="off" spellcheck="false">
+        <input id="ahrefs-domain" type="text" placeholder="输入域名或网址，如 https://example.com/" autocomplete="off" spellcheck="false">
         <button id="ahrefs-query-btn" type="button" disabled>查询</button>
       </div>
       <div class="ahrefs-actions">
         <button id="ahrefs-extract-btn" type="button">提取DR数据</button>
       </div>
-      <div id="ahrefs-status" class="ahrefs-status" data-state="idle">输入域名后点击查询，在 Ahrefs 页面加载完成后点击提取。</div>
+      <div id="ahrefs-status" class="ahrefs-status" data-state="idle">输入域名或网址后点击查询，在 Ahrefs 页面加载完成后点击提取。</div>
       <div class="ahrefs-history-header">
         <span>查询历史</span>
         <button id="ahrefs-clear-history" type="button" class="btn-text" disabled>清空</button>

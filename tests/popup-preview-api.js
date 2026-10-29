@@ -1,9 +1,20 @@
 // Test harness for rendering the packaged side panel in an ordinary browser tab.
 const previewMode = new URL(location.href).searchParams.get('mode');
+const previewUrls = {
+  unsupported: 'https://example.com/',
+  trends: 'https://trends.google.com/trends/explore?q=AI%20image%20upscaler&date=today%2012-m&geo=US',
+  default: 'https://www.google.com/search?q=AI+image+upscaler'
+};
+try {
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: async text => { window.__previewCopied = text; } },
+    configurable: true
+  });
+} catch {}
 window.chrome = {
   runtime: { getURL: path => `../../src/${path}` },
   tabs: {
-    query: async () => [{ id: 1, url: previewMode === 'unsupported' ? 'https://example.com/' : 'https://www.google.com/search?q=AI+image+upscaler' }],
+    query: async () => [{ id: 1, url: previewUrls[previewMode] || previewUrls.default }],
     create: async options => { window.__previewCreatedTab = options.url; return { id: 2 }; },
     onActivated: { addListener() {} },
     onUpdated: { addListener() {} }
