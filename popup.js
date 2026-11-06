@@ -1,4 +1,5 @@
 import { getSearchTab, openPanel, runDomainCheck, openBacklinkChecker, runExternalLinkScan, runMediaScan, readCurrentExplore, isValidDomain, normalizeDomain } from './extension.js';
+import { runCheckin } from './nurture.js';
 
 const MAX_SELECT = 8;
 const selected = new Set();
@@ -702,3 +703,37 @@ exploreClear.addEventListener('click', () => {
 });
 
 loadExploreHistory();
+
+// Nurture panel
+function setupNurtureTask(site, buttonId, statusId, logId) {
+  const btn = document.getElementById(buttonId);
+  const statusEl = document.getElementById(statusId);
+  const logEl = document.getElementById(logId);
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    logEl.innerHTML = '';
+    statusEl.textContent = '正在执行…';
+    statusEl.dataset.state = 'loading';
+
+    try {
+      const result = await runCheckin(chrome, site, msg => {
+        const line = document.createElement('div');
+        line.className = 'nurture-log-line';
+        line.textContent = msg;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      });
+      statusEl.textContent = result.ok ? `✅ ${result.message}` : `❌ ${result.message}`;
+      statusEl.dataset.state = result.ok ? 'ready' : 'error';
+    } catch (error) {
+      statusEl.textContent = error.message;
+      statusEl.dataset.state = 'error';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+setupNurtureTask('v2ex', 'nurture-v2ex', 'nurture-v2ex-status', 'nurture-v2ex-log');
+setupNurtureTask('seeapi', 'nurture-seeapi', 'nurture-seeapi-status', 'nurture-seeapi-log');

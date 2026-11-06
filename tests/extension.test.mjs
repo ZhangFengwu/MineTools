@@ -210,7 +210,7 @@ test('MV3 package has all resources and only the intended permissions', async ()
   assert.equal(manifest.manifest_version, 3);
   assert.ok(Number(manifest.minimum_chrome_version) >= 116);
   assert.deepEqual(manifest.permissions.toSorted(), ['activeTab','clipboardWrite','downloads','scripting','sidePanel','tabs']);
-  assert.equal(manifest.host_permissions, undefined);
+  assert.deepEqual(manifest.host_permissions.toSorted(), ['*://*.seeapi.com/*','*://*.v2ex.com/*']);
   assert.deepEqual(manifest.background, { service_worker: 'background.js' });
   assert.equal(manifest.side_panel.default_path, 'popup.html');
   assert.equal(manifest.action.default_popup, undefined);
@@ -222,7 +222,7 @@ test('MV3 package has all resources and only the intended permissions', async ()
   assert.equal(captureBridge?.run_at, 'document_start');
   assert.ok(!captureBridge.matches.some(pattern => pattern.includes('example.com')));
   assert.deepEqual(manifest.web_accessible_resources?.[0]?.resources, ['media-merge.js', 'vendor/*']);
-  for (const asset of [manifest.side_panel.default_path,'popup.js','popup.css','extension.js','background.js','content.js','domain-content.js','external-links-content.js','media-content.js','media-merge.js','youtube-capture-main.js','youtube-capture-bridge.js','vendor/mp4box.all.mjs','vendor/mp4-muxer.mjs',...Object.values(manifest.icons)]) assert.ok((await stat(new URL(asset, base))).size > 0, asset);
+  for (const asset of [manifest.side_panel.default_path,'popup.js','popup.css','extension.js','background.js','nurture.js','v2ex-checkin.js','seeapi-checkin.js','content.js','domain-content.js','external-links-content.js','media-content.js','media-merge.js','youtube-capture-main.js','youtube-capture-bridge.js','vendor/mp4box.all.mjs','vendor/mp4-muxer.mjs',...Object.values(manifest.icons)]) assert.ok((await stat(new URL(asset, base))).size > 0, asset);
   const background = await readFile(new URL('background.js', base), 'utf8');
   assert.match(background, /chrome\.action\.onClicked\.addListener/);
   assert.match(background, /chrome\.sidePanel\.open\(\{ windowId: tab\.windowId \}\)/);

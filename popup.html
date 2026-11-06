@@ -18,6 +18,7 @@
     <button class="tab" data-tab="serp">SERP<span class="tab-optional"> 采集</span></button>
     <button class="tab" data-tab="trends">趋势<span class="tab-optional">分析</span></button>
     <button class="tab" data-tab="ahrefs"><span class="tab-prefix">Ahrefs </span>反链</button>
+    <button class="tab" data-tab="nurture">养号</button>
   </nav>
   <main>
     <section id="panel-common" class="panel active">
@@ -103,6 +104,24 @@
       </div>
       <div id="ahrefs-history" class="ahrefs-history"></div>
       <div id="ahrefs-detail" class="ahrefs-detail"></div>
+    </section>
+    <section id="panel-nurture" class="panel">
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>V2EX</h3>
+          <button id="nurture-v2ex" type="button" class="tool-btn">签到</button>
+        </div>
+        <div id="nurture-v2ex-status" class="tool-status" role="status" aria-live="polite" data-state="idle">打开 v2ex.com/mission/daily 点击「领取 X 铜币」按钮。</div>
+        <div id="nurture-v2ex-log" class="nurture-log"></div>
+      </div>
+      <div class="tool-block">
+        <div class="tool-row">
+          <h3>SeeAPI</h3>
+          <button id="nurture-seeapi" type="button" class="tool-btn">签到</button>
+        </div>
+        <div id="nurture-seeapi-status" class="tool-status" role="status" aria-live="polite" data-state="idle">打开 seeapi.com 主页，进入 Daily rewards 点击签到。</div>
+        <div id="nurture-seeapi-log" class="nurture-log"></div>
+      </div>
     </section>
   </main>
 </body>

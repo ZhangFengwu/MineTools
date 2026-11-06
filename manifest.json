@@ -1,10 +1,14 @@
 {
   "manifest_version": 3,
   "name": "MineTools",
-  "version": "1.16.0",
-  "description": "Google 搜索结果采集、Ahrefs 反链、页面素材嗅探、域名注册时间查询与趋势分析，集成在浏览器侧边栏。",
+  "version": "1.17.0",
+  "description": "Google 搜索结果采集、Ahrefs 反链、页面素材嗅探、域名注册时间查询与趋势分析、自动养号签到，集成在浏览器侧边栏。",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "scripting", "clipboardWrite", "sidePanel", "tabs", "downloads"],
+  "host_permissions": [
+    "*://*.v2ex.com/*",
+    "*://*.seeapi.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
