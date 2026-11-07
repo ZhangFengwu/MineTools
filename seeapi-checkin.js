@@ -1,64 +1,42 @@
 // SeeAPI daily check-in.
-// The "Daily rewards" button lives inside the Credits modal, which may need to be opened first.
+// Click "Get 60 Free Credits" to open the Daily Rewards modal, then click "Check In".
 (() => {
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-  // Find an element whose visible text contains both "daily" and "rewards" (case-insensitive).
-  function findDailyRewards() {
+  function findElement(textLower) {
     const all = Array.from(document.querySelectorAll('button, a, [role="button"], .btn, div'));
     for (const el of all) {
-      const t = (el.textContent || '').toLowerCase();
-      if (t.includes('daily') && t.includes('reward')) return el;
+      if ((el.textContent || '').toLowerCase().includes(textLower)) return el;
     }
     return null;
   }
 
-  // Try to open the Credits modal by clicking the credits display in the top-right.
-  async function tryOpenCreditsModal() {
-    const candidates = Array.from(document.querySelectorAll('div, span, button, a'))
-      .filter(el => {
-        const t = (el.textContent || '').trim();
-        return /^\d[\d,]*$/.test(t) && t.length <= 10;
-      });
-    for (const el of candidates) {
-      el.click();
-      await sleep(800);
-      if (findDailyRewards()) return true;
-    }
-    return false;
-  }
-
   async function main() {
-    // Step 1: look for Daily rewards — it may already be visible if the Credits modal auto-opens.
-    let btn = findDailyRewards();
-
-    // Step 2: if not found, try opening the Credits modal.
-    if (!btn) {
-      const opened = await tryOpenCreditsModal();
-      if (!opened) {
-        btn = findDailyRewards(); // one more try after potential DOM update
+    // Step 1: click "Get 60 Free Credits" to open the Daily Rewards modal.
+    const trigger = findElement('get 60 free credits') || findElement('free credits');
+    if (trigger) {
+      trigger.click();
+      await sleep(800);
+    } else {
+      // Fallback: hover the credits display to open the floating window, then click Daily rewards.
+      const creditsEl = Array.from(document.querySelectorAll('div, span, button'))
+        .find(el => /^\d[\d,]*$/.test((el.textContent || '').trim()) && (el.textContent || '').trim().length <= 10);
+      if (creditsEl) {
+        creditsEl.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        await sleep(600);
+        const dailyBtn = findElement('daily reward');
+        if (dailyBtn) dailyBtn.click();
+        await sleep(800);
       }
     }
 
-    if (!btn) {
-      // Debug: report what clickable elements exist on the page.
-      const samples = Array.from(document.querySelectorAll('button, a, [role="button"]'))
-        .slice(0, 5)
-        .map(el => `"${(el.textContent || '').trim().substring(0, 40)}"`);
-      return { ok: false, message: `未找到 Daily rewards 入口。页面可点击元素: ${samples.join(', ')}` };
-    }
-
-    btn.click();
-    await sleep(600);
-
-    // Step 3: poll for the "Check In" button inside the Daily Rewards modal.
+    // Step 2: poll for the "Check In" button.
     for (let i = 0; i < 30; i++) {
       await sleep(500);
       const all = Array.from(document.querySelectorAll('button, a, [role="button"], .btn'));
       for (const el of all) {
         const t = (el.textContent || '').trim().toLowerCase();
         if (t === 'check in' || t === 'checkin' || t.includes('check in')) {
-          // Skip if clearly disabled or already claimed.
           if (el.disabled || el.getAttribute('aria-disabled') === 'true') {
             return { ok: true, message: '今日已签到（按钮不可用）' };
           }
@@ -68,7 +46,7 @@
       }
     }
 
-    return { ok: false, message: '已打开 Daily rewards，但未找到 Check In 按钮' };
+    return { ok: false, message: '未找到 Check In 按钮' };
   }
 
   return main();
